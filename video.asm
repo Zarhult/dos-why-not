@@ -15,10 +15,10 @@ WaitFrame:      push    dx
                 mov     dx, 0x03da              ; must use dx for 16 bit port num
 .waitRetrace:   in      al, dx
                 ; bit 3 will be on if we're in retrace
-                test    al, 0x08    ; are we in retrace?
+                test    al, 0x08                ; are we in retrace?
                 jnz     .waitRetrace
 .endRefresh:    in      al, dx
-                test    al, 0x08 ; are we in refresh?
+                test    al, 0x08                ; are we in refresh?
                 jz      .endRefresh
                 pop dx
                 ret
@@ -26,11 +26,27 @@ WaitFrame:      push    dx
 InitVideo:      ; set video mode to 0x13
                 mov     ax, 0x13
                 int     0x10
-    		; make ES point to VGA memory
+                ; make ES point to VGA memory
                 ; DOS will handle restoring ES
-    		mov     ax, 0xa000
-    		mov     es, ax
-    		ret
+                mov     ax, 0xa000
+                mov     es, ax
+                ret
 
 DrawPixel:      mov     byte [es:0x0001], 0x0f
+                ret
+
+DrawImage:      call DrawPixel                  ; todo: more than just a pixel
+                ret
+
+ClearScreen:    push    di
+                push    cx
+                push    ax
+                xor     di, di                  ; starts at es:0
+                mov     cx, 320*200             ; all of video memory
+                cld                             ; increment di each iteration
+                mov     ax, 0x0
+                rep     stosb                   ; zero all 320*200 bytes at es:di
+                pop     ax
+                pop     cx
+                pop     di
                 ret

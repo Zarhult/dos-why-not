@@ -3,10 +3,12 @@
 Start:      call    InstallKB
             call    InitVideo
 .gameLoop:  call    WaitFrame
-            call    DrawPixel
+            call    DrawImage
             cmp     byte [Quit], 1
             jne     .gameLoop
+            ; quitting
             call    RestoreKB
+            call    ClearScreen
             ; exit
             mov     ax, 0x4c00      ; set AH to 0x4c exit syscall with AL return code 0
             int     0x21
