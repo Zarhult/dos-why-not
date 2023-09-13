@@ -20,7 +20,7 @@ WaitFrame:      push    dx
 .endRefresh:    in      al, dx
                 test    al, 0x08                ; are we in refresh?
                 jz      .endRefresh
-                pop dx
+                pop     dx
                 ret
 
 InitVideo:      ; set video mode to 0x13
@@ -32,10 +32,26 @@ InitVideo:      ; set video mode to 0x13
                 mov     es, ax
                 ret
 
-DrawPixel:      mov     byte [es:0x0001], 0x0f
+; Draw a pixel at the location specified by user
+; Input:
+;   ax Address to draw at
+;
+; Example: call with ax = 0x0100 to draw at 0x0100
+DrawPixel:      push    di
+                xor     di, di
+                add     di, ax
+                mov     byte [es:di], 0x0f
+                pop     di
                 ret
 
-DrawImage:      call DrawPixel                  ; todo: more than just a pixel
+DrawImage:      mov     ax, 0x1000
+                call    DrawPixel
+                mov     ax, 0x0100
+                call    DrawPixel
+                mov     ax, 0x0010
+                call    DrawPixel
+                mov     ax, 0x0001
+                call    DrawPixel
                 ret
 
 ClearScreen:    push    di
@@ -44,7 +60,7 @@ ClearScreen:    push    di
                 xor     di, di                  ; starts at es:0
                 mov     cx, 320*200             ; all of video memory
                 cld                             ; increment di each iteration
-                mov     ax, 0x0
+                mov     al, 0x00
                 rep     stosb                   ; zero all 320*200 bytes at es:di
                 pop     ax
                 pop     cx
